@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
 import styles from './index.module.css';
-import { Form, Select, InputNumber, Switch, Radio, Slider, Button, Upload, Rate, Checkbox, Row, Col, Input } from 'antd';
-import { doForgingCard } from '@/models/forgingCard';
+import {
+  Form,
+  Select,
+  InputNumber,
+  Switch,
+  Radio,
+  Slider,
+  Button,
+  Upload,
+  Rate,
+  Checkbox,
+  Row,
+  Col,
+  Input,
+} from 'antd';
+import { doForgingCard } from '@/services/forgingCard';
 
 const formItemLayout = {
   labelCol: { span: 6 },
@@ -59,7 +73,7 @@ function ForginCard() {
           rate: 3.5,
         }}
       >
-        <Form.Item name="cardName" label="卡名"  rules={[{ required: true, message: '卡名是必须的' }]}>
+        <Form.Item name="cardName" label="卡名" rules={[{ required: true, message: '卡名是必须的' }]}>
           <Input />
         </Form.Item>
 
