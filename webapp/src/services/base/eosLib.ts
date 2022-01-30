@@ -43,4 +43,24 @@ async function insertCard(param) {
   );
   return true;
 }
-export { insertCard };
+
+async function getAllNFTCardTable() {
+  const table = await rpc.get_table_rows({
+    json: true, // Get the response as json
+    code: account, // Contract that we target
+    scope: account, // Account that owns the data
+    table: 'token', // Table name
+    limit: 10, // Maximum number of rows that we want to get
+    reverse: false, // Optional: Get reversed data
+    show_payer: false, // Optional: Show ram payer
+  });
+  return table.row.map((item) => ({
+    id: item.id,
+    owner: item.owner,
+    value: item.value,
+    cardName: item.tokenName,
+    imgHashId: item.uri,
+    options: item.tokenData,
+  }));
+}
+export { insertCard, getAllNFTCardTable };

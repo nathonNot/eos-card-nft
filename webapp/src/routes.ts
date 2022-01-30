@@ -31,7 +31,7 @@ const routerConfig: IRouterConfig[] = [
       },
       {
         component: NotFound,
-      }
+      },
     ],
   },
 ];

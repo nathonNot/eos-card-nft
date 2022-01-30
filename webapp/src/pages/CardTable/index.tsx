@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './index.module.css';
 import { List, Card } from 'antd';
+import store from '@/store';
 
 const { Meta } = Card;
 
@@ -37,6 +38,11 @@ const data = [
 function CardTable() {
   const [fileUrl, setFileUrl] = useState('');
   const [imgFile, setImgFile] = useState<any>(null);
+  const [cardBookState, cardBookDispatchers] = store.useModel('cardBook');
+
+  useEffect(() => {
+    cardBookDispatchers.initNFTData();
+  }, []);
 
   return (
     <List
