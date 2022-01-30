@@ -20,12 +20,12 @@ struct [[eosio::table("stats"), eosio::contract("card_nft")]] stats {
 };
 using currency_index = eosio::multi_index<"stat"_n, stats, indexed_by<"byissuer"_n, const_mem_fun<stats, uint64_t, &stats::get_issuer>>>;
 
-struct [[eosio::table("token"), eosio::contract("card_nft")]] token {
+struct [[eosio::table("cardbook"), eosio::contract("card_nft")]] cardbook {
     uint64_t id;        // Unique 64 bit identifier,
     string   uri;       // RFC 3986
     name     owner;     // token owner
     asset    value;     // token value (1 SYS)
-    string   tokenName; // token name
+    string   cardName; // token name
     string   tokenData; // 附件数据
 
     uint64_t primary_key() const { return id; }
@@ -33,7 +33,7 @@ struct [[eosio::table("token"), eosio::contract("card_nft")]] token {
     string   get_uri() const { return uri; }
     asset    get_value() const { return value; }
     uint64_t get_symbol() const { return value.symbol.code().raw(); }
-    string   get_tokenName() const { return tokenName; }
+    string   get_cardName() const { return cardName; }
     string   get_tokenData() const { return tokenData; }
     // generated token global uuid based on token id and
     // contract name, passed in the argument
@@ -45,13 +45,13 @@ struct [[eosio::table("token"), eosio::contract("card_nft")]] token {
     }
 
     string get_unique_name() const {
-        string unique_name = tokenName + "#" + std::to_string(id);
+        string unique_name = cardName + "#" + std::to_string(id);
         return unique_name;
     }
 };
-using token_index = eosio::multi_index<
-    "token"_n, token, indexed_by<"byowner"_n, const_mem_fun<token, uint64_t, &token::get_owner>>,
-    indexed_by<"bysymbol"_n, const_mem_fun<token, uint64_t, &token::get_symbol>>>;
+using cardbook_index = eosio::multi_index<
+    "cardbook"_n, cardbook, indexed_by<"byowner"_n, const_mem_fun<cardbook, uint64_t, &cardbook::get_owner>>,
+    indexed_by<"bysymbol"_n, const_mem_fun<cardbook, uint64_t, &cardbook::get_symbol>>>;
 
 class [[eosio::contract("card_nft")]] card_nft : public contract {
 
@@ -59,7 +59,7 @@ class [[eosio::contract("card_nft")]] card_nft : public contract {
     using contract::contract;
     card_nft(name receiver, name code, datastream<const char*> ds)
         : contract(receiver, code, ds)
-        , tokens(receiver, receiver.value) {}
+        , cardbooks(receiver, receiver.value) {}
 
     // 创建nft类型
     [[eosio::action]] void create(name issuer, std::string symbol);
@@ -74,7 +74,7 @@ class [[eosio::contract("card_nft")]] card_nft : public contract {
     [[eosio::action]] void setrampayer(name payer, uint64_t id);
 
   private:
-    token_index tokens;
+    cardbook_index cardbooks;
 
     void mint(name owner, name ram_payer, asset value, string uri, string name, string data);
 
