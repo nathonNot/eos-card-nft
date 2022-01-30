@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+
+  nodeos:
+    container_name: nodeos
+    image: eostudio/eosio.cdt:v1.8.1
+    volumes:
+      - /home/eos-card-nft:/home/eos-card-nft
