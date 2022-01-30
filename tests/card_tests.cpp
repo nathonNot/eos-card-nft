@@ -31,6 +31,18 @@ BOOST_AUTO_TEST_CASE(create) try {
         ("issuer", "card")              //
         ("symbol", "NFTCARD")        //
     );
+    
+    BOOST_CHECK_THROW(
+    [&] {
+        t.push_action(
+            N(card), N(create), N(card),
+            mutable_variant_object       //
+            ("issuer", "card")                    //
+            ("symbol", "NFTCARD")             //
+        );
+    }(),
+    fc::exception);
+
     vector<string> uris = {"adasdsad","asdasdasd"};
     t.push_action(
         N(card), N(issue), N(card),
@@ -43,16 +55,7 @@ BOOST_AUTO_TEST_CASE(create) try {
         ("tkn_data", "star") 
     );
     // Can't reply to non-existing message
-    BOOST_CHECK_THROW(
-        [&] {
-            t.push_action(
-                N(card), N(create), N(card),
-                mutable_variant_object       //
-                ("issuer", "card")                    //
-                ("symbol", "NFTCARD")             //
-            );
-        }(),
-        fc::exception);
+
     BOOST_CHECK_THROW(
         [&] {
             t.push_action(
@@ -62,7 +65,7 @@ BOOST_AUTO_TEST_CASE(create) try {
                 ("quantity", "1 NFTCARD")
                 ("uris", uris) 
                 ("tkn_name", "青眼白龙") 
-                ("memo", "qwe")          //
+                ("memo", "qwee")          //
                 ("tkn_data", "star") 
             );
         }(),

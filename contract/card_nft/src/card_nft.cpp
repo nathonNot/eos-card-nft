@@ -18,7 +18,7 @@ void card_nft::create(name issuer, std::string sym) {
     auto           symbol_name = symbol.code().raw();
     currency_index currency_table(_self, symbol_name);
     auto           existing_currency = currency_table.find(symbol_name);
-    eosio::check(existing_currency == currency_table.end(), "token with symbol already exists");
+    eosio::check(existing_currency == currency_table.end(), "card with symbol already exists");
 
     // Create new currency
     currency_table.emplace(_self, [&](auto& currency) {
@@ -80,8 +80,8 @@ void card_nft::transferid(name from, name to, uint64_t id, string memo) {
     check(memo.size() <= 256, "memo has more than 256 bytes");
 
     // Ensure token ID exists
-    auto send_token = tokens.find(id);
-    check(send_token != tokens.end(), "token with specified ID does not exist");
+    auto send_token = cardbooks.find(id);
+    check(send_token != cardbooks.end(), "token with specified ID does not exist");
 
     // Ensure owner owns token
     check(send_token->owner == from, "sender does not own token with specified ID");
@@ -93,7 +93,7 @@ void card_nft::transferid(name from, name to, uint64_t id, string memo) {
     require_recipient(to);
 
     // Transfer card_nft from sender to receiver
-    tokens.modify(send_token, from, [&](auto& token) { token.owner = to; });
+    cardbooks.modify(send_token, from, [&](auto& token) { token.owner = to; });
 
     // Change balance of both accounts
     sub_balance(from, st.value);
@@ -113,7 +113,7 @@ void card_nft::transfer(name from, name to, asset quantity, string memo) {
 
     check(quantity.amount == 1, "cannot transfer quantity, not equal to 1");
 
-    auto symbl = tokens.get_index<"bysymbol"_n>();
+    auto symbl = cardbooks.get_index<"bysymbol"_n>();
 
     auto it = symbl.lower_bound(quantity.symbol.code().raw());
 
@@ -138,13 +138,13 @@ void card_nft::transfer(name from, name to, asset quantity, string memo) {
 }
 void card_nft::mint(name owner, name ram_payer, asset value, string uri, string tkn_name, string data) {
     // Add token with creator paying for RAM
-    tokens.emplace(ram_payer, [&](auto& token) {
-        token.id        = tokens.available_primary_key();
-        token.uri       = uri;
-        token.owner     = owner;
-        token.value     = value;
-        token.tokenName = tkn_name;
-        token.tokenData = data;
+    cardbooks.emplace(ram_payer, [&](auto& cardbook) {
+        cardbook.id        = cardbooks.available_primary_key();
+        cardbook.uri       = uri;
+        cardbook.owner     = owner;
+        cardbook.value     = value;
+        cardbook.cardName = tkn_name;
+        cardbook.tokenData = data;
     });
 }
 
@@ -153,8 +153,8 @@ void card_nft::setrampayer(name payer, uint64_t id) {
     require_auth(payer);
 
     // Ensure token ID exists
-    auto payer_token = tokens.find(id);
-    check(payer_token != tokens.end(), "token with specified ID does not exist");
+    auto payer_token = cardbooks.find(id);
+    check(payer_token != cardbooks.end(), "token with specified ID does not exist");
 
     // Ensure payer owns token
     check(payer_token->owner == payer, "payer does not own token with specified ID");
@@ -174,13 +174,13 @@ void card_nft::setrampayer(name payer, uint64_t id) {
  	});*/
 
     // Set owner as a RAM payer
-    tokens.modify(payer_token, payer, [&](auto& token) {
-        token.id        = st.id;
-        token.uri       = st.uri;
-        token.owner     = st.owner;
-        token.value     = st.value;
-        token.tokenName = st.tokenName;
-        token.tokenData = st.tokenData;
+    cardbooks.modify(payer_token, payer, [&](auto& cardbook) {
+        cardbook.id        = st.id;
+        cardbook.uri       = st.uri;
+        cardbook.owner     = st.owner;
+        cardbook.value     = st.value;
+        cardbook.cardName = st.cardName;
+        cardbook.tokenData = st.tokenData;
     });
 
     sub_balance(payer, st.value);
@@ -192,14 +192,14 @@ void card_nft::burn(name owner, uint64_t token_id) {
     require_auth(owner);
 
     // Find token to burn
-    auto burn_token = tokens.find(token_id);
-    check(burn_token != tokens.end(), "token with id does not exist");
+    auto burn_token = cardbooks.find(token_id);
+    check(burn_token != cardbooks.end(), "token with id does not exist");
     check(burn_token->owner == owner, "token not owned by account");
 
     asset burnt_supply = burn_token->value;
 
     // Remove token from tokens table
-    tokens.erase(burn_token);
+    cardbooks.erase(burn_token);
 
     // Lower balance from owner
     sub_balance(owner, burnt_supply);
