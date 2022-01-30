@@ -7,40 +7,48 @@ const account = 'vtdqmgzkkpnc';
 const privateKeys = ['5JQSMXZZPkbK7WYh5u6BqSJPgViCVp2KUVdnK1AmWYxPLANaMcx'];
 const signatureProvider = new JsSignatureProvider(privateKeys);
 const api = new Api({ rpc, signatureProvider });
+const selfAccount = 'brxnhwibizwk';
 
 async function insertCard(param) {
   const data = {
     star: 10,
     quality: 3,
   };
-  await api.transact(
-    {
-      actions: [
-        {
-          account,
-          name: 'issue',
-          authorization: [
-            {
-              actor: account,
-              permission: 'active',
-            },
-          ],
-          data: {
-            to: 'gwhjbuuoszou',
-            quantity: '1NFTB',
-            uris: [''],
-            tkn_name: '奇迹',
-            memo: 'Forge cards',
-            tkn_data: JSON.stringify(data),
-          },
-        },
-      ],
-    },
-    {
-      blocksBehind: 3,
-      expireSeconds: 30,
-    },
-  );
+  console.log(param);
+  const cardData = {
+    tkn_name: param.cardName,
+    to: selfAccount,
+    uris: ['acascascascasc'],
+    memo: 'Forge cards',
+  };
+  // await api.transact(
+  //   {
+  //     actions: [
+  //       {
+  //         account,
+  //         name: 'issue',
+  //         authorization: [
+  //           {
+  //             actor: account,
+  //             permission: 'active',
+  //           },
+  //         ],
+  //         data: {
+  //           to: 'gwhjbuuoszou',
+  //           quantity: '1NFTB',
+  //           uris: [''],
+  //           tkn_name: '奇迹',
+  //           memo: 'Forge cards',
+  //           tkn_data: JSON.stringify(data),
+  //         },
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     blocksBehind: 3,
+  //     expireSeconds: 30,
+  //   },
+  // );
   return true;
 }
 
@@ -54,7 +62,7 @@ async function getAllNFTCardTable() {
     reverse: false, // Optional: Get reversed data
     show_payer: false, // Optional: Show ram payer
   });
-  return table.row.map((item) => ({
+  return table.rows.map((item) => ({
     id: item.id,
     owner: item.owner,
     value: item.value,
