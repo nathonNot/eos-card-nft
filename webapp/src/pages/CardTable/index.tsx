@@ -5,39 +5,7 @@ import store from '@/store';
 
 const { Meta } = Card;
 
-const data = [
-  {
-    title: 'Title 1',
-  },
-  {
-    title: 'Title 2',
-  },
-  {
-    title: 'Title 3',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-  {
-    title: 'Title 4',
-  },
-];
-
 function CardTable() {
-  const [fileUrl, setFileUrl] = useState('');
-  const [imgFile, setImgFile] = useState<any>(null);
   const [cardBookState, cardBookDispatchers] = store.useModel('cardBook');
 
   useEffect(() => {
@@ -47,15 +15,15 @@ function CardTable() {
   return (
     <List
       grid={{ gutter: 16, column: 4 }}
-      dataSource={data}
+      dataSource={cardBookState.NFTData}
       renderItem={(item) => (
         <List.Item>
           <Card
             hoverable
             style={{ width: 240 }}
-            cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
+            cover={<img src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
           >
-            <Meta title="Europe Street beat" description="www.instagram.com" />
+            <Meta title={item.cardName} description={item.value} />
           </Card>
         </List.Item>
       )}
