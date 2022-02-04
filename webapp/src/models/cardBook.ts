@@ -1,4 +1,4 @@
-import { getAllNFTCardTable } from '@/services/base/eosLib';
+import { allNFTCardTable } from '@/services/forgingCard';
 import { IRootState, IRootDispatch } from '@/store';
 import { NFTData } from '@/types/card';
 import { logger } from 'ice';
@@ -22,7 +22,7 @@ export default {
   // 定义处理该模型副作用的函数
   effects: (dispatch: IRootDispatch) => ({
     async initNFTData() {
-      const data = await getAllNFTCardTable();
+      const data = await allNFTCardTable();
       logger.info(data);
       dispatch.cardBook.update({
         NFTData: data,

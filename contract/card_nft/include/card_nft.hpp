@@ -25,8 +25,10 @@ struct [[eosio::table("cardbook"), eosio::contract("card_nft")]] cardbook {
     string   uri;       // RFC 3986
     name     owner;     // token owner
     asset    value;     // token value (1 SYS)
-    string   cardName; // token name
+    string   cardName;  // token name
+    int      star;      // 卡牌星级
     string   tokenData; // 附件数据
+    string   entries;     // 词条
 
     uint64_t primary_key() const { return id; }
     uint64_t get_owner() const { return owner.value; }
@@ -35,6 +37,9 @@ struct [[eosio::table("cardbook"), eosio::contract("card_nft")]] cardbook {
     uint64_t get_symbol() const { return value.symbol.code().raw(); }
     string   get_cardName() const { return cardName; }
     string   get_tokenData() const { return tokenData; }
+    int      get_star() const { return star; }
+    string   get_entries() const { return entries; }
+
     // generated token global uuid based on token id and
     // contract name, passed in the argument
     uint128_t get_global_id(name self) const {
@@ -76,10 +81,11 @@ class [[eosio::contract("card_nft")]] card_nft : public contract {
   private:
     cardbook_index cardbooks;
 
-    void mint(name owner, name ram_payer, asset value, string uri, string name, string data);
+    void mint(name owner, name ram_payer, asset value, string uri, string name, string data, int star, string entries);
 
     void sub_balance(name owner, asset value);
     void add_balance(name owner, asset value, name ram_payer);
     void sub_supply(asset quantity);
     void add_supply(asset quantity);
+    int random_star(int payload);
 };

@@ -1,5 +1,5 @@
 import { updateFile } from './base/ipfs';
-import { insertCard } from './base/eosLib';
+import { insertCard,getAllNFTCardTable } from './base/eosLib';
 
 async function doForgingCard(params) {
   // const ipfsData = await updateFile(params);
@@ -7,4 +7,8 @@ async function doForgingCard(params) {
   // const hashId = ipfsData.path;
   await insertCard('hashId');
 }
-export { doForgingCard };
+
+async function allNFTCardTable() {
+  return await getAllNFTCardTable();
+}
+export { doForgingCard,allNFTCardTable };

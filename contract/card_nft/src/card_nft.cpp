@@ -60,7 +60,7 @@ void card_nft::issue(name to, asset quantity, vector<string> uris, string tkn_na
 
     // Mint card_nfts
     for (auto const& uri : uris) {
-        mint(to, st.issuer, asset{1, symbol}, uri, tkn_name, tkn_data);
+        mint(to, st.issuer, asset{1, symbol}, uri, tkn_name, tkn_data, 0, "1,2");
     }
     // check(quantity.amount == 3, "mismatch between number of tokens and uris provided 3333");
 
@@ -136,15 +136,17 @@ void card_nft::transfer(name from, name to, asset quantity, string memo) {
 
     SEND_INLINE_ACTION(*this, transferid, {from, "active"_n}, {from, to, id, memo});
 }
-void card_nft::mint(name owner, name ram_payer, asset value, string uri, string tkn_name, string data) {
+void card_nft::mint(name owner, name ram_payer, asset value, string uri, string tkn_name, string data, int star, string entries) {
     // Add token with creator paying for RAM
     cardbooks.emplace(ram_payer, [&](auto& cardbook) {
         cardbook.id        = cardbooks.available_primary_key();
         cardbook.uri       = uri;
         cardbook.owner     = owner;
         cardbook.value     = value;
-        cardbook.cardName = tkn_name;
+        cardbook.cardName  = tkn_name;
         cardbook.tokenData = data;
+        cardbook.star      = star;
+        cardbook.entries   = entries;
     });
 }
 
@@ -179,8 +181,10 @@ void card_nft::setrampayer(name payer, uint64_t id) {
         cardbook.uri       = st.uri;
         cardbook.owner     = st.owner;
         cardbook.value     = st.value;
-        cardbook.cardName = st.cardName;
+        cardbook.cardName  = st.cardName;
         cardbook.tokenData = st.tokenData;
+        cardbook.star      = st.star;
+        cardbook.entries   = st.entries;
     });
 
     sub_balance(payer, st.value);
@@ -248,5 +252,9 @@ void card_nft::add_supply(asset quantity) {
     auto           current_currency = currency_table.find(symbol_name);
 
     currency_table.modify(current_currency, name(0), [&](auto& currency) { currency.supply += quantity; });
+}
+
+int card_nft::random_star(int payload){
+    return 0;
 }
 EOSIO_DISPATCH(card_nft, (create)(issue)(transfer)(transferid)(setrampayer)(burn))
