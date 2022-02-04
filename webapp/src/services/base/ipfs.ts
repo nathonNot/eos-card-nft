@@ -6,8 +6,8 @@ const client = create({ host: ipfs_host, port: ipfs_port, protocol: 'http' });
 
 async function updateFile(file) {
   /* 上传文件 */
-  const added = await client.add(file);
-  return added;
+  const addHash = await client.add(file);
+  return addHash;
 }
 
 export { updateFile };

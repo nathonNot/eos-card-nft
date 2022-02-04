@@ -17,4 +17,5 @@ declare interface Window {
   eosjs_jsonrpc: any;
   eosjs_jssig: any;
   eosjs_api: any;
+  web3: undefined | any;
 }
