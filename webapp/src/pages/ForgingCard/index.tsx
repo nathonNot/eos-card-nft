@@ -14,8 +14,11 @@ import {
   Row,
   Col,
   Input,
+  message,
+  Spin,
 } from 'antd';
 import { doForgingCard } from '@/services/forgingCard';
+import { imgToBase64 } from '@/services/util/imgToBase64';
 
 const formItemLayout = {
   labelCol: { span: 6 },
@@ -35,22 +38,38 @@ const fromTypeSelectOptions = [
 ];
 
 const randomType = [
-  { value: 'damage', name: '伤害' },
-  { value: 'effect', name: '影响' },
-  { value: 'characteristic', name: '特性' },
+  { value: '1', name: '伤害' },
+  { value: '2', name: '影响' },
+  { value: '3', name: '特性' },
 ];
 
 function ForginCard() {
   const [fileUrl, setFileUrl] = useState('');
-  const [imgFile, setImgFile] = useState<any>(null);
+  const [fileBase64, setImgFile] = useState('');
+  const [isImgOk, setImageOk] = useState(false);
 
   const onFinish = async (values: any) => {
-    console.log('Received values of form: ', values);
-    await doForgingCard(imgFile);
+    if (fileBase64 === '') {
+      message.error('请上传图片');
+      return;
+    }
+    const forgingData = {
+      fileBase64,
+      ...values,
+    };
+    await doForgingCard(forgingData);
+  };
+
+  const onFileToBase64 = (imgStr) => {
+    setImgFile(imgStr);
+    setImageOk(false);
   };
   const processImage = (event) => {
+    setImgFile('');
     const imageFile = event.target.files[0];
-    setImgFile(imageFile);
+    if (!imageFile) return;
+    setImageOk(true);
+    imgToBase64(imageFile, onFileToBase64);
     const imageUrl = URL.createObjectURL(imageFile);
     setFileUrl(imageUrl);
   };
@@ -96,9 +115,9 @@ function ForginCard() {
 
         <Form.Item name="cardType" label="卡牌类型" rules={[{ required: true, message: '请选择你的卡牌类型' }]}>
           <Radio.Group>
-            <Radio.Button value="miracle">奇迹</Radio.Button>
-            <Radio.Button value="strategy">战略</Radio.Button>
-            <Radio.Button value="hero">英雄</Radio.Button>
+            <Radio.Button value="1">奇迹</Radio.Button>
+            <Radio.Button value="2">战略</Radio.Button>
+            <Radio.Button value="3">英雄</Radio.Button>
           </Radio.Group>
         </Form.Item>
 
@@ -116,14 +135,26 @@ function ForginCard() {
           </Checkbox.Group>
         </Form.Item>
 
-        <Form.Item name="upload" label="上传卡面" getValueFromEvent={normFile}>
+        <Form.Item
+          name="upload"
+          label="上传卡面"
+          getValueFromEvent={normFile}
+          rules={[
+            {
+              validator: (_, value) => (fileBase64 !== '' ? Promise.resolve() : Promise.reject(new Error('请上传卡面图片'))),
+            },
+          ]}
+        >
           <input type="file" accept="image/*" onChange={processImage} />
         </Form.Item>
-
         <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
-          <Button type="primary" htmlType="submit">
-            铸造
-          </Button>
+          {isImgOk ? (
+            <Spin />
+          ) : (
+            <Button type="primary" htmlType="submit">
+              铸造
+            </Button>
+          )}
         </Form.Item>
       </Form>
     </>
