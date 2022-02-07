@@ -4,9 +4,12 @@ import { request } from 'ice';
 import { NFTData } from '@/types/card';
 import { GetCardApiData } from './api';
 
+if (window.ethereum) {
+  window.ethereum.request({ method: 'eth_requestAccounts' });
+}
 function getProvider() {
   if (window.web3) {
-    const provider = new ethers.providers.Web3Provider(window.web3.currentProvider);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
     // There is only ever up to one account in MetaMask exposed
     console.log('connect to the web3 Provider');
     return provider;
@@ -15,7 +18,7 @@ function getProvider() {
   }
 }
 
-const cardNFTContractAddress = '0x1f4c81d83fdf5c34405703a9540feD838DC2D31F';
+const cardNFTContractAddress = '0xF0058c7081FA9bCf60D6B849B7951F4ddBc62164';
 
 async function getNFTContract() {
   const abi = await request({
@@ -51,11 +54,31 @@ async function getAllTable() {
 
 async function forgingCard(params) {
   const cardNFTContract = await getNFTContract();
-  if (window.web3) {
-    const provider = new ethers.providers.Web3Provider(window.web3.currentProvider);
+  console.log(params);
+  if (window.ethereum) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    const withSigner = cardNFTContract.connect(signer);
-    const tokenId = await withSigner.createCard();
+    const signerAddress = await signer.getAddress();
+    const contractWithSigner = cardNFTContract.connect(signer);
+    let payValue = params.payNum ? params.payNum : 0;
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+    payValue = (payValue + 10) / 10000;
+    const options = { value: ethers.utils.parseEther(`${payValue}`) };
+    const fromTypeBigNum = ethers.utils.formatBytes32String(`${params.fromType}`);
+    const randomTypeBigNum = params.randomType.map((item) => ethers.utils.formatBytes32String(`${item}`));
+    const tx = await contractWithSigner.createCard(fromTypeBigNum, randomTypeBigNum, options);
+    const receipt = await tx.wait(2);
+    const sumEvent = receipt.events.pop();
+    if (sumEvent.event === 'CardCreated') {
+      const createAddress = sumEvent.args[0];
+      if (createAddress === signerAddress) {
+        const tokenId = sumEvent.args[1].toNumber();
+        console.log('tokenId is', tokenId);
+        return tokenId;
+      }
+    }
+    console.log('create card ok', sumEvent);
+    return -2;
   }
   return -1;
 }

@@ -18,4 +18,5 @@ declare interface Window {
   eosjs_jssig: any;
   eosjs_api: any;
   web3: undefined | any;
+  ethereum: undefined | any;
 }

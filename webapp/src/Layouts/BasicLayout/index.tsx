@@ -2,6 +2,10 @@ import { createElement } from 'react';
 import ProLayout, { DefaultFooter } from '@ant-design/pro-layout';
 import { Link } from 'ice';
 import { asideMenuConfig } from './menuConfig';
+import { Layout, Menu } from 'antd';
+import styles from './index.module.css';
+
+const { Header, Content, Footer } = Layout;
 
 const loopMenuItem = (menus) =>
   menus.map(({ icon, children, ...item }) => ({
@@ -12,40 +16,23 @@ const loopMenuItem = (menus) =>
 
 export default function BasicLayout({ children, location }) {
   return (
-    <ProLayout
-      title="icejs & antd"
-      style={{
-        minHeight: '100vh',
-      }}
-      location={{
-        pathname: location.pathname,
-      }}
-      menuDataRender={() => loopMenuItem(asideMenuConfig)}
-      menuItemRender={(item, defaultDom) => {
-        if (!item.path) {
-          return defaultDom;
-        }
-        return <Link to={item.path}>{defaultDom}</Link>;
-      }}
-      footerRender={() => (
-        <DefaultFooter
-          links={[
-            {
-              key: 'icejs',
-              title: 'icejs',
-              href: 'https://github.com/ice-lab/icejs',
-            },
-            {
-              key: 'antd',
-              title: 'antd',
-              href: 'https://github.com/ant-design/ant-design',
-            },
-          ]}
-          copyright="by icejs & antd"
-        />
-      )}
-    >
-      <div style={{ minHeight: '60vh' }}>{children}</div>
-    </ProLayout>
+    <Layout className="layout">
+      <Header>
+        <div className="logo" />
+        <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
+          {asideMenuConfig.map((item, index) => {
+            const key = index + 1;
+            return (
+              <Menu.Item key={key}>
+                <Link to={item.path}>{item.name}</Link>
+              </Menu.Item>
+            );
+          })}
+        </Menu>
+      </Header>
+      <Content style={{ padding: '0 50px' }} className={styles.siteLayoutContent}>
+        <div style={{ minHeight: '60vh' }}>{children}</div>
+      </Content>
+    </Layout>
   );
 }

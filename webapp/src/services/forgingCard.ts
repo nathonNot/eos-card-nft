@@ -10,7 +10,7 @@ async function doForgingCard(params) {
   console.log('do forging card', params);
   // 先铸造，拿到tokenId后再上传
   const tokenId = await forgingCard(params);
-  const uri = await updateFile(JSON.stringify(params));
+  // const uri = await updateFile(JSON.stringify(params));
 }
 
 async function allNFTCardTable() {
